@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
 import org.springframework.context.annotation.Configuration;
 
 import com.dvlcube.app.rest.StatService;
@@ -22,6 +23,7 @@ import com.dvlcube.utils.interfaces.MxBean;
  * @author Ulisses Lima
  */
 @Configuration
+@Aspect
 public class RestAspect implements MxAspect {
 	private Logger log = LogManager.getLogger(this.getClass());
 
@@ -31,6 +33,7 @@ public class RestAspect implements MxAspect {
 	 * @since 12 de abr de 2019
 	 * @author Ulisses Lima
 	 */
+
 	@Around("execution(* com.dvlcube.app.rest.*.*(..))")
 	public Object stats(ProceedingJoinPoint point) throws Throwable {
 		return StatsAspect.timeAround(point);

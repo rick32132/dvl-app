@@ -182,8 +182,7 @@ public class DvlJpaRepository<T extends MxBean<? extends Serializable>, ID exten
 
 		return em.createQuery(//
 				"SELECT e FROM " + ei.getEntityName() //
-						+ " e WHERE lower(" + idParam + ") LIKE :id") //
-				.setParameter("id", "%" + id + "%") //
+						+ " e WHERE lower(" + idParam + ") LIKE '%aaa%'") //
 				.setMaxResults(DEFAULT_PAGE_SIZE) //
 				.getResultList();
 	}

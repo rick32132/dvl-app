@@ -4,9 +4,12 @@ import static com.dvlcube.app.manager.data.e.Menu.MONITORING;
 import static com.dvlcube.utils.query.MxQuery.$;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import com.dvlcube.app.dto.StatDto;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -40,8 +43,31 @@ public class StatService implements MxService {
 	 * @author Ulisses Lima
 	 */
 	@GetMapping
-	public List<Stat> get(@RequestParam Map<String, String> params) {
-		return Stats.values();
+
+	public List<StatDto> get(@RequestParam Map<String, String> params) {
+		List<Stat> values = Stats.values();
+		values.sort(new Comparator<Stat>() {
+			@Override
+			public int compare(Stat o1, Stat o2) {
+				if(o1.getTotal().equals(o2.getTotal())) {
+					if(o1.avg().equals(o2.avg())){
+						return 0;
+					}
+					return (o1.avg() < o2.avg() ? 1 : -1);
+				}
+				return (o1.getTotal() < o2.getTotal() ? 1 : -1);
+			}
+		});
+
+		return values.stream().map(stat -> new StatDto(
+				stat.getAction(),
+				stat.getMin(),
+				stat.getMax(),
+				stat.getTotal(),
+				stat.getCount(),
+				stat.getErrors(),
+				stat.savg()))
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -51,7 +77,7 @@ public class StatService implements MxService {
 	 * @author Ulisses Lima
 	 */
 	@DeleteMapping
-	public List<Stat> delete(@RequestParam Map<String, String> params) {
+	public List<StatDto> delete(@RequestParam Map<String, String> params) {
 		Stats.consume(item -> log.info("removing {}", item));
 		return get(params);
 	}
@@ -86,10 +112,18 @@ public class StatService implements MxService {
 	 * @author Ulisses Lima
 	 */
 	@GetMapping("/like")
-	public Iterable<Stat> getLike(@RequestParam Map<String, String> params, @RequestParam(required = true) String id) {
+	public Iterable<StatDto> getLike(@RequestParam Map<String, String> params, @RequestParam(required = true) String id) {
 		if ($(id).isBlank())
 			return get(params);
 
-		return $(Stats.values()).filter(stat -> stat.getAction().toLowerCase().contains(id.toLowerCase())).o;
+		return $(Stats.values().stream().map(stat -> new StatDto(
+				stat.getAction(),
+				stat.getMin(),
+				stat.getMax(),
+				stat.getTotal(),
+				stat.getCount(),
+				stat.getErrors(),
+				stat.savg()))
+				.collect(Collectors.toList())).filter(stat -> stat.getAction().toLowerCase().contains(id.toLowerCase())).o;
 	}
 }

@@ -89,7 +89,7 @@ this.state = {
     </div>
     <div class="footer-copyright">
         <div class="container">
-            dvl-core.it
+			dvl-core.it © 2020, <b>Henrique Ramos Backes.</b> All Rights Reserved.
         </div>
     </div>
 </footer>

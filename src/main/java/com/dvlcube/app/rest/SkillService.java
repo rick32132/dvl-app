@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Sort;
 
 import com.dvlcube.app.interfaces.MenuItem;
 import com.dvlcube.app.jpa.repo.SkillRepository;
@@ -39,7 +40,8 @@ public class SkillService implements MxFilterableBeanService<SkillBean, Long> {
 	@Override
 	@GetMapping
 	public Iterable<SkillBean> get(@RequestParam Map<String, String> params) {
-		return repo.firstPage();
+		Sort sort = Sort.by("name");
+		return repo.firstPage(sort);
 	}
 
 	@Override
@@ -80,7 +82,17 @@ public class SkillService implements MxFilterableBeanService<SkillBean, Long> {
 
 	@GetMapping("/like")
 	public Iterable<SkillBean> getLike(@RequestParam(required = true) String id) {
-		return repo.findAllLike(id);
+		return repo.findByNameContaining(id);
+	}
+
+	@GetMapping("/name/{name}")
+	public SkillBean getByName(@PathVariable(required = true) String name) {
+		return repo.findOneByName(name);
+	}
+
+	@GetMapping("/exists/name/{name}")
+	public boolean exists(@PathVariable(required = true) String name) {
+		return repo.existsByName(name);
 	}
 
 	@DeleteMapping("/{id}")
